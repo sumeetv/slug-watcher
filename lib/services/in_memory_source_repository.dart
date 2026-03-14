@@ -3,7 +3,8 @@ import 'package:slug_watcher/services/source_repository.dart';
 
 class InMemorySourceRepository implements SourceRepository {
   InMemorySourceRepository({List<TrackedSource>? initialSources})
-    : _sources = List<TrackedSource>.from(initialSources ?? const <TrackedSource>[]);
+      : _sources =
+            List<TrackedSource>.from(initialSources ?? const <TrackedSource>[]);
 
   List<TrackedSource> _sources;
 

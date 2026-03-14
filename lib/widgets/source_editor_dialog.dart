@@ -73,7 +73,8 @@ class _SourceEditorDialogState extends State<SourceEditorDialog> {
               if (widget.editName)
                 TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Publication name'),
+                  decoration:
+                      const InputDecoration(labelText: 'Publication name'),
                   textInputAction: TextInputAction.next,
                   validator: _requiredValidator,
                 ),
@@ -90,7 +91,8 @@ class _SourceEditorDialogState extends State<SourceEditorDialog> {
               if (widget.editChapter)
                 TextFormField(
                   controller: _chapterController,
-                  decoration: const InputDecoration(labelText: 'Current chapter'),
+                  decoration:
+                      const InputDecoration(labelText: 'Current chapter'),
                   textInputAction: TextInputAction.done,
                   validator: _requiredValidator,
                 ),

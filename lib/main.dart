@@ -3,25 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:slug_watcher/controllers/slug_watcher_controller.dart';
 import 'package:slug_watcher/models/tracked_source.dart';
 import 'package:slug_watcher/services/auth_service.dart';
-import 'package:slug_watcher/services/in_memory_source_repository.dart';
+import 'package:slug_watcher/services/local_source_repository.dart';
 import 'package:slug_watcher/services/sync_service.dart';
 import 'package:slug_watcher/widgets/source_card.dart';
 import 'package:slug_watcher/widgets/source_editor_dialog.dart';
 import 'package:slug_watcher/widgets/status_panel.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final SlugWatcherController controller = SlugWatcherController(
-    repository: InMemorySourceRepository(
-      initialSources: <TrackedSource>[
-        TrackedSource(
-          id: 'sample-1',
-          name: 'The Last Archivist',
-          url: 'https://example.com/archivist',
-          currentChapter: '42',
-          lastReadDate: DateTime(2026, 3, 10),
-        ),
-      ],
-    ),
+    repository: await LocalSourceRepository.create(),
     authService: StubGoogleAuthService(),
     syncService: StubDriveSyncService(),
   );
@@ -149,18 +140,19 @@ class SlugWatcherHome extends StatelessWidget {
       case SourceMenuAction.editProgress:
         final SourceEditorResult? progressResult =
             await showDialog<SourceEditorResult>(
-              context: context,
-              builder: (BuildContext context) => SourceEditorDialog(
-                title: 'Update progress',
-                confirmLabel: 'Update',
-                initialName: source.name,
-                initialChapter: source.currentChapter,
-                editName: false,
-                editUrl: false,
-              ),
-            );
+          context: context,
+          builder: (BuildContext context) => SourceEditorDialog(
+            title: 'Update progress',
+            confirmLabel: 'Update',
+            initialName: source.name,
+            initialChapter: source.currentChapter,
+            editName: false,
+            editUrl: false,
+          ),
+        );
         if (progressResult != null) {
-          await controller.updateChapter(source.id, progressResult.currentChapter);
+          await controller.updateChapter(
+              source.id, progressResult.currentChapter);
         }
         return;
       case SourceMenuAction.editDate:
@@ -176,7 +168,8 @@ class SlugWatcherHome extends StatelessWidget {
         }
         return;
       case SourceMenuAction.editUrl:
-        final SourceEditorResult? urlResult = await showDialog<SourceEditorResult>(
+        final SourceEditorResult? urlResult =
+            await showDialog<SourceEditorResult>(
           context: context,
           builder: (BuildContext context) => SourceEditorDialog(
             title: 'Update URL',

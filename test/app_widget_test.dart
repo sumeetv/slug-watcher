@@ -7,7 +7,8 @@ import 'package:slug_watcher/services/in_memory_source_repository.dart';
 import 'package:slug_watcher/services/sync_service.dart';
 
 void main() {
-  testWidgets('renders app shell and add source action', (WidgetTester tester) async {
+  testWidgets('renders app shell and add source action',
+      (WidgetTester tester) async {
     final SlugWatcherController controller = SlugWatcherController(
       repository: InMemorySourceRepository(),
       authService: StubGoogleAuthService(),

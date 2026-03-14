@@ -24,7 +24,9 @@ class StatusPanel extends StatelessWidget {
             Text('Status', style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             _StatusRow(
-              icon: authState?.isSignedIn == true ? Icons.verified_user : Icons.lock_outline,
+              icon: authState?.isSignedIn == true
+                  ? Icons.verified_user
+                  : Icons.lock_outline,
               label: 'Account',
               value: authState?.label ?? 'Loading account status...',
             ),

@@ -33,7 +33,8 @@ void main() {
 
       await controller.initialize();
 
-      expect(controller.sources.map((TrackedSource source) => source.id), <String>[
+      expect(
+          controller.sources.map((TrackedSource source) => source.id), <String>[
         'newer',
         'older',
       ]);

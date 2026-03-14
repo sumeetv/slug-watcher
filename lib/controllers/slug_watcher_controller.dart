@@ -9,9 +9,9 @@ class SlugWatcherController extends ChangeNotifier {
     required SourceRepository repository,
     required AuthService authService,
     required SyncService syncService,
-  }) : _repository = repository,
-       _authService = authService,
-       _syncService = syncService;
+  })  : _repository = repository,
+        _authService = authService,
+        _syncService = syncService;
 
   final SourceRepository _repository;
   final AuthService _authService;
@@ -84,7 +84,8 @@ class SlugWatcherController extends ChangeNotifier {
   Future<void> updateLastReadDate(String id, DateTime date) async {
     await _replaceSource(
       id,
-      (TrackedSource source) => source.copyWith(lastReadDate: _normalizeDate(date)),
+      (TrackedSource source) =>
+          source.copyWith(lastReadDate: _normalizeDate(date)),
     );
   }
 
@@ -97,7 +98,8 @@ class SlugWatcherController extends ChangeNotifier {
     String id,
     TrackedSource Function(TrackedSource source) transform,
   ) async {
-    final int index = _sources.indexWhere((TrackedSource source) => source.id == id);
+    final int index =
+        _sources.indexWhere((TrackedSource source) => source.id == id);
     if (index == -1) {
       return;
     }

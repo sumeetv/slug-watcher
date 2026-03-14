@@ -49,24 +49,24 @@ class SourceCard extends StatelessWidget {
                   onSelected: onMenuSelected,
                   itemBuilder: (BuildContext context) =>
                       const <PopupMenuEntry<SourceMenuAction>>[
-                        PopupMenuItem<SourceMenuAction>(
-                          value: SourceMenuAction.editProgress,
-                          child: Text('Edit chapter'),
-                        ),
-                        PopupMenuItem<SourceMenuAction>(
-                          value: SourceMenuAction.editDate,
-                          child: Text('Edit last read date'),
-                        ),
-                        PopupMenuItem<SourceMenuAction>(
-                          value: SourceMenuAction.editUrl,
-                          child: Text('Edit URL'),
-                        ),
-                        PopupMenuDivider(),
-                        PopupMenuItem<SourceMenuAction>(
-                          value: SourceMenuAction.delete,
-                          child: Text('Delete'),
-                        ),
-                      ],
+                    PopupMenuItem<SourceMenuAction>(
+                      value: SourceMenuAction.editProgress,
+                      child: Text('Edit chapter'),
+                    ),
+                    PopupMenuItem<SourceMenuAction>(
+                      value: SourceMenuAction.editDate,
+                      child: Text('Edit last read date'),
+                    ),
+                    PopupMenuItem<SourceMenuAction>(
+                      value: SourceMenuAction.editUrl,
+                      child: Text('Edit URL'),
+                    ),
+                    PopupMenuDivider(),
+                    PopupMenuItem<SourceMenuAction>(
+                      value: SourceMenuAction.delete,
+                      child: Text('Delete'),
+                    ),
+                  ],
                 ),
               ],
             ),
