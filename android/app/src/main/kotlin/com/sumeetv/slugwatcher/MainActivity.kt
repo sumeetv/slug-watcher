@@ -1,4 +1,4 @@
-package com.example.slug_watcher
+package com.sumeetv.slugwatcher
 
 import io.flutter.embedding.android.FlutterActivity
 
