@@ -1,9 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:slug_watcher/controllers/slug_watcher_controller.dart';
 import 'package:slug_watcher/models/tracked_source.dart';
-import 'package:slug_watcher/services/auth_service.dart';
 import 'package:slug_watcher/services/in_memory_source_repository.dart';
 import 'package:slug_watcher/services/sync_service.dart';
+
+import 'test_helpers/fake_auth_service.dart';
 
 void main() {
   group('SlugWatcherController', () {
@@ -27,17 +28,16 @@ void main() {
             ),
           ],
         ),
-        authService: StubGoogleAuthService(),
+        authService: FakeAuthService(),
         syncService: StubDriveSyncService(),
       );
 
       await controller.initialize();
 
       expect(
-          controller.sources.map((TrackedSource source) => source.id), <String>[
-        'newer',
-        'older',
-      ]);
+        controller.sources.map((TrackedSource source) => source.id),
+        <String>['newer', 'older'],
+      );
     });
 
     test('updating chapter refreshes the last read date', () async {
@@ -53,7 +53,7 @@ void main() {
             ),
           ],
         ),
-        authService: StubGoogleAuthService(),
+        authService: FakeAuthService(),
         syncService: StubDriveSyncService(),
       );
 
@@ -80,7 +80,7 @@ void main() {
             ),
           ],
         ),
-        authService: StubGoogleAuthService(),
+        authService: FakeAuthService(),
         syncService: StubDriveSyncService(),
       );
 
@@ -88,6 +88,29 @@ void main() {
       await controller.deleteSource('source-1');
 
       expect(controller.sources, isEmpty);
+    });
+
+    test('updates auth state when signing in and out', () async {
+      final FakeAuthService authService = FakeAuthService();
+      final SlugWatcherController controller = SlugWatcherController(
+        repository: InMemorySourceRepository(),
+        authService: authService,
+        syncService: StubDriveSyncService(),
+      );
+
+      await controller.initialize();
+      await controller.signInWithGoogle();
+
+      expect(controller.authState?.isSignedIn, isTrue);
+      expect(controller.authState?.label, 'Signed in as Reader');
+      expect(authService.signInCallCount, 1);
+      expect(controller.isAuthBusy, isFalse);
+
+      await controller.signOutFromGoogle();
+
+      expect(controller.authState?.isSignedIn, isFalse);
+      expect(authService.signOutCallCount, 1);
+      expect(controller.isAuthBusy, isFalse);
     });
   });
 }

@@ -2,16 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:slug_watcher/controllers/slug_watcher_controller.dart';
 import 'package:slug_watcher/main.dart';
-import 'package:slug_watcher/services/auth_service.dart';
 import 'package:slug_watcher/services/in_memory_source_repository.dart';
 import 'package:slug_watcher/services/sync_service.dart';
 
+import 'test_helpers/fake_auth_service.dart';
+
 void main() {
-  testWidgets('renders app shell and add source action',
+  testWidgets('renders app shell and google auth action',
       (WidgetTester tester) async {
+    final FakeAuthService authService = FakeAuthService();
     final SlugWatcherController controller = SlugWatcherController(
       repository: InMemorySourceRepository(),
-      authService: StubGoogleAuthService(),
+      authService: authService,
       syncService: StubDriveSyncService(),
     );
 
@@ -22,5 +24,13 @@ void main() {
     expect(find.byType(FloatingActionButton), findsOneWidget);
     expect(find.text('Add source'), findsOneWidget);
     expect(find.text('Tracked sources'), findsOneWidget);
+    expect(find.text('Sign in'), findsOneWidget);
+
+    await tester.tap(find.text('Sign in'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sign out'), findsOneWidget);
+    expect(find.text('Signed in as Reader'), findsWidgets);
+    expect(authService.signInCallCount, 1);
   });
 }

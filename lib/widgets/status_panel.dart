@@ -7,14 +7,23 @@ class StatusPanel extends StatelessWidget {
     super.key,
     required this.authState,
     required this.syncStatus,
+    required this.isAuthBusy,
+    this.onAuthAction,
   });
 
   final AuthState? authState;
   final SyncStatus? syncStatus;
+  final bool isAuthBusy;
+  final VoidCallback? onAuthAction;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final bool isSignedIn = authState?.isSignedIn == true;
+    final String authButtonLabel = isSignedIn ? 'Sign out' : 'Sign in';
+    final IconData authButtonIcon =
+        isSignedIn ? Icons.logout_rounded : Icons.login_rounded;
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -24,13 +33,30 @@ class StatusPanel extends StatelessWidget {
             Text('Status', style: theme.textTheme.titleMedium),
             const SizedBox(height: 12),
             _StatusRow(
-              icon: authState?.isSignedIn == true
-                  ? Icons.verified_user
-                  : Icons.lock_outline,
+              icon: isSignedIn ? Icons.verified_user : Icons.lock_outline,
               label: 'Account',
               value: authState?.label ?? 'Loading account status...',
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FilledButton.icon(
+                onPressed:
+                    authState == null || isAuthBusy ? null : onAuthAction,
+                icon: isAuthBusy
+                    ? SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      )
+                    : Icon(authButtonIcon),
+                label: Text(authButtonLabel),
+              ),
+            ),
+            const SizedBox(height: 12),
             _StatusRow(
               icon: Icons.cloud_outlined,
               label: 'Backup',

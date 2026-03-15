@@ -9,11 +9,19 @@ import 'package:slug_watcher/widgets/source_card.dart';
 import 'package:slug_watcher/widgets/source_editor_dialog.dart';
 import 'package:slug_watcher/widgets/status_panel.dart';
 
+const String _googleWebClientId =
+    String.fromEnvironment('GOOGLE_WEB_CLIENT_ID', defaultValue: '');
+const String _googleServerClientId =
+    String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID', defaultValue: '');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final SlugWatcherController controller = SlugWatcherController(
     repository: await LocalSourceRepository.create(),
-    authService: StubGoogleAuthService(),
+    authService: GoogleAuthService(
+      clientId: _googleWebClientId,
+      serverClientId: _googleServerClientId,
+    ),
     syncService: StubDriveSyncService(),
   );
 
@@ -81,6 +89,8 @@ class SlugWatcherHome extends StatelessWidget {
                       StatusPanel(
                         authState: controller.authState,
                         syncStatus: controller.syncStatus,
+                        isAuthBusy: controller.isAuthBusy,
+                        onAuthAction: () => _handleAuthAction(context),
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -108,6 +118,22 @@ class SlugWatcherHome extends StatelessWidget {
                 ),
         );
       },
+    );
+  }
+
+  Future<void> _handleAuthAction(BuildContext context) async {
+    if (controller.authState?.isSignedIn == true) {
+      await controller.signOutFromGoogle();
+    } else {
+      await controller.signInWithGoogle();
+    }
+
+    if (!context.mounted || controller.authState == null) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(controller.authState!.label)),
     );
   }
 
@@ -152,7 +178,9 @@ class SlugWatcherHome extends StatelessWidget {
         );
         if (progressResult != null) {
           await controller.updateChapter(
-              source.id, progressResult.currentChapter);
+            source.id,
+            progressResult.currentChapter,
+          );
         }
         return;
       case SourceMenuAction.editDate:

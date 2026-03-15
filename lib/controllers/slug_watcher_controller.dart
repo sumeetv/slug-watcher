@@ -19,10 +19,12 @@ class SlugWatcherController extends ChangeNotifier {
 
   final List<TrackedSource> _sources = <TrackedSource>[];
   bool _isLoading = true;
+  bool _isAuthBusy = false;
   AuthState? _authState;
   SyncStatus? _syncStatus;
 
   bool get isLoading => _isLoading;
+  bool get isAuthBusy => _isAuthBusy;
   List<TrackedSource> get sources => List<TrackedSource>.unmodifiable(_sources);
   AuthState? get authState => _authState;
   SyncStatus? get syncStatus => _syncStatus;
@@ -44,6 +46,14 @@ class SlugWatcherController extends ChangeNotifier {
     _syncStatus = results[2] as SyncStatus;
     _isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> signInWithGoogle() {
+    return _runAuthAction(_authService.signIn);
+  }
+
+  Future<void> signOutFromGoogle() {
+    return _runAuthAction(_authService.signOut);
   }
 
   Future<void> addSource({
@@ -92,6 +102,22 @@ class SlugWatcherController extends ChangeNotifier {
   Future<void> deleteSource(String id) async {
     _sources.removeWhere((TrackedSource source) => source.id == id);
     await _persistSources();
+  }
+
+  Future<void> _runAuthAction(Future<AuthState> Function() action) async {
+    if (_isAuthBusy) {
+      return;
+    }
+
+    _isAuthBusy = true;
+    notifyListeners();
+
+    try {
+      _authState = await action();
+    } finally {
+      _isAuthBusy = false;
+      notifyListeners();
+    }
   }
 
   Future<void> _replaceSource(
