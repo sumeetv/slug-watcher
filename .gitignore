@@ -5,6 +5,7 @@
 .packages
 .pub/
 /build/
+.codex-flutter/
 
 # IDE
 .idea/
