@@ -28,6 +28,12 @@ Future<void> main() async {
   runApp(SlugWatcherApp(controller: controller));
 }
 
+enum AppThemeOption {
+  system,
+  light,
+  dark,
+}
+
 class SlugWatcherApp extends StatefulWidget {
   const SlugWatcherApp({super.key, required this.controller});
 
@@ -38,6 +44,8 @@ class SlugWatcherApp extends StatefulWidget {
 }
 
 class _SlugWatcherAppState extends State<SlugWatcherApp> {
+  AppThemeOption _themeOption = AppThemeOption.system;
+
   @override
   void initState() {
     super.initState();
@@ -53,15 +61,38 @@ class _SlugWatcherAppState extends State<SlugWatcherApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF345C49)),
         useMaterial3: true,
       ),
-      home: SlugWatcherHome(controller: widget.controller),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFF345C49),
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+      ),
+      themeMode: _themeOption.themeMode,
+      home: SlugWatcherHome(
+        controller: widget.controller,
+        themeOption: _themeOption,
+        onThemeSelected: (AppThemeOption option) {
+          setState(() {
+            _themeOption = option;
+          });
+        },
+      ),
     );
   }
 }
 
 class SlugWatcherHome extends StatelessWidget {
-  const SlugWatcherHome({super.key, required this.controller});
+  const SlugWatcherHome({
+    super.key,
+    required this.controller,
+    required this.themeOption,
+    required this.onThemeSelected,
+  });
 
   final SlugWatcherController controller;
+  final AppThemeOption themeOption;
+  final ValueChanged<AppThemeOption> onThemeSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +102,24 @@ class SlugWatcherHome extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Slug Watcher'),
+            actions: <Widget>[
+              PopupMenuButton<AppThemeOption>(
+                initialValue: themeOption,
+                tooltip: 'Theme options',
+                onSelected: onThemeSelected,
+                itemBuilder: (BuildContext context) => AppThemeOption.values
+                    .map(
+                      (AppThemeOption option) =>
+                          CheckedPopupMenuItem<AppThemeOption>(
+                        value: option,
+                        checked: option == themeOption,
+                        child: Text(option.label),
+                      ),
+                    )
+                    .toList(),
+                icon: const Icon(Icons.color_lens_outlined),
+              ),
+            ],
           ),
           floatingActionButton: FloatingActionButton.extended(
             onPressed: () => _showAddSourceDialog(context),
@@ -246,6 +295,30 @@ class SlugWatcherHome extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('URL copied to clipboard')),
     );
+  }
+}
+
+extension on AppThemeOption {
+  String get label {
+    switch (this) {
+      case AppThemeOption.system:
+        return 'System default';
+      case AppThemeOption.light:
+        return 'Light';
+      case AppThemeOption.dark:
+        return 'Dark';
+    }
+  }
+
+  ThemeMode get themeMode {
+    switch (this) {
+      case AppThemeOption.system:
+        return ThemeMode.system;
+      case AppThemeOption.light:
+        return ThemeMode.light;
+      case AppThemeOption.dark:
+        return ThemeMode.dark;
+    }
   }
 }
 
